@@ -1,0 +1,240 @@
+
+<style>
+*{box-sizing:border-box}
+.arr-row{display:flex;gap:6px;align-items:flex-end;justify-content:center;padding:1rem 0 .5rem}
+.cell-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cell{width:48px;height:48px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;border:1.5px solid transparent;transition:all .35s cubic-bezier(.4,0,.2,1)}
+.cell.default{background:var(--color-background-info);color:var(--color-text-info);border-color:transparent}
+.cell.comparing{background:#fef3c7;color:#92400e;border-color:#f59e0b;transform:translateY(-8px)}
+.cell.swapping{background:#fee2e2;color:#991b1b;border-color:#ef4444;transform:translateY(-12px)}
+.cell.sorted{background:#dcfce7;color:#166534;border-color:#22c55e}
+.cell.pivot{background:#f3e8ff;color:#6b21a8;border-color:#a855f7;transform:translateY(-8px)}
+.idx{font-size:11px;color:var(--color-text-tertiary)}
+.arrow{font-size:18px;color:#f59e0b;font-weight:500;align-self:center;padding-bottom:12px}
+.arrow.swap{color:#ef4444}
+.step-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:.85rem 1.1rem;font-size:13px;line-height:1.7;min-height:72px}
+.step-box strong{color:var(--color-text-primary);font-weight:500}
+.tag{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 8px;border-radius:12px;font-weight:500;margin-left:4px}
+.tag.cmp{background:#fef3c7;color:#92400e}
+.tag.swp{background:#fee2e2;color:#991b1b}
+.tag.keep{background:#EEF4FF;color:#185FA5}
+.tag.done{background:#dcfce7;color:#166534}
+.tag.pass{background:#EEEDFE;color:#3C3489}
+.code-hl{background:#1e1e2e;border-radius:var(--border-radius-md);padding:.6rem 1rem;font-family:var(--font-mono);font-size:12.5px;line-height:1.9;overflow-x:auto;margin-top:.75rem}
+.cl{display:flex;gap:8px;border-radius:4px;padding:0 4px;margin:0 -4px;transition:background .2s}
+.cl.hl{background:rgba(250,204,21,0.15);border-left:2px solid #facc15;padding-left:2px}
+.ln{color:#4a4a6a;font-size:10px;min-width:16px;flex-shrink:0;padding-top:2px;user-select:none}
+.kw{color:#c792ea}.fn{color:#82aaff}.st{color:#c3e88d}.cm{color:#546e7a;font-style:italic}.num{color:#f78c6c}.var{color:#eeffff}.op{color:#89ddff}.punc{color:#89ddff}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--color-text-secondary);margin:.5rem 0}
+.leg-item{display:flex;align-items:center;gap:4px}
+.leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.prog-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden;margin:.5rem 0}
+.prog-fill{height:100%;background:#534AB7;border-radius:2px;transition:width .4s}
+.ctrl{display:flex;gap:8px;margin-top:.85rem;flex-wrap:wrap;align-items:center}
+.spd{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary)}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:.75rem 0}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.45rem .6rem;text-align:center}
+.stat-n{font-size:17px;font-weight:500;color:var(--color-text-primary)}
+.stat-l{font-size:10px;color:var(--color-text-secondary)}
+</style>
+
+<div style="padding:.75rem 0 0">
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#bfdbfe"></div>기본</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fef3c7;border:1.5px solid #f59e0b"></div>비교 중</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fee2e2;border:1.5px solid #ef4444"></div>교환 발생</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#dcfce7;border:1.5px solid #22c55e"></div>정렬 확정</div>
+</div>
+
+<div class="arr-row" id="arr-viz"></div>
+
+<div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+
+<div class="stat-row">
+  <div class="stat"><div class="stat-n" id="s-pass">-</div><div class="stat-l">패스 (i)</div></div>
+  <div class="stat"><div class="stat-n" id="s-j">-</div><div class="stat-l">위치 (j)</div></div>
+  <div class="stat"><div class="stat-n" id="s-cmp">0</div><div class="stat-l">비교 횟수</div></div>
+  <div class="stat"><div class="stat-n" id="s-swp">0</div><div class="stat-l">교환 횟수</div></div>
+</div>
+
+<div class="step-box" id="step-desc">
+  ▶ 시작 버튼을 눌러 버블 정렬 과정을 단계별로 확인해 보세요!
+</div>
+
+<div class="code-hl" id="code-hl">
+  <div class="cl" id="L1"><span class="ln">1</span><span><span class="var">arr</span> <span class="op">=</span> <span class="punc">[</span><span class="num">7</span><span class="punc">,</span> <span class="num">2</span><span class="punc">,</span> <span class="num">5</span><span class="punc">,</span> <span class="num">1</span><span class="punc">,</span> <span class="num">6</span><span class="punc">]</span></span></div>
+  <div class="cl" id="L2"><span class="ln">2</span><span><span class="var">n</span> <span class="op">=</span> <span class="fn">len</span><span class="punc">(</span><span class="var">arr</span><span class="punc">)</span>  <span class="cm"># n = 5</span></span></div>
+  <div class="cl" id="L3"><span class="ln">3</span><span><span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span><span class="punc">(</span><span class="var">n</span> <span class="op">-</span> <span class="num">1</span><span class="punc">):</span>  <span class="cm"># i = 0,1,2,3</span></span></div>
+  <div class="cl" id="L4"><span class="ln">4</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> <span class="var">j</span> <span class="kw">in</span> <span class="fn">range</span><span class="punc">(</span><span class="var">n</span> <span class="op">-</span> <span class="var">i</span> <span class="op">-</span> <span class="num">1</span><span class="punc">):</span></span></div>
+  <div class="cl" id="L5"><span class="ln">5</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="punc">]</span> <span class="op">&gt;</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="op">+</span><span class="num">1</span><span class="punc">]:</span></span></div>
+  <div class="cl" id="L6"><span class="ln">6</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="punc">],</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="op">+</span><span class="num">1</span><span class="punc">]</span> <span class="op">=</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="op">+</span><span class="num">1</span><span class="punc">],</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="punc">]</span></span></div>
+  <div class="cl" id="L7"><span class="ln">7</span><span><span class="fn">print</span><span class="punc">(</span><span class="st">"정렬 결과:"</span><span class="punc">,</span> <span class="var">arr</span><span class="punc">)</span></span></div>
+</div>
+
+<div class="ctrl">
+  <button id="btn-step" onclick="stepFwd()" style="font-size:13px">다음 단계 <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+  <button id="btn-auto" onclick="toggleAuto()" style="font-size:13px"><i class="ti ti-player-play" id="play-icon" aria-hidden="true"></i> 자동 실행</button>
+  <button onclick="resetSim()" style="font-size:13px"><i class="ti ti-refresh" aria-hidden="true"></i> 처음부터</button>
+  <div class="spd">
+    <span>빠르게</span>
+    <input type="range" min="1" max="5" value="3" id="spd-slider" style="width:70px" oninput="setSpd(this.value)">
+    <span>천천히</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+const INIT=[7,2,5,1,6];
+const N=INIT.length;
+
+function buildEvents(init){
+  const a=[...init], evts=[];
+  evts.push({type:'init',arr:[...a]});
+  for(let i=0;i<N-1;i++){
+    evts.push({type:'pass-start',i,arr:[...a]});
+    for(let j=0;j<N-i-1;j++){
+      const sw=a[j]>a[j+1];
+      evts.push({type:'compare',i,j,sw,before:[...a]});
+      if(sw){[a[j],a[j+1]]=[a[j+1],a[j]];evts.push({type:'swap',i,j,arr:[...a]});}
+      else evts.push({type:'keep',i,j,arr:[...a]});
+    }
+    evts.push({type:'pass-end',i,arr:[...a],confirmed:N-i-1});
+  }
+  evts.push({type:'done',arr:[...a]});
+  return evts;
+}
+
+const EVTS=buildEvents(INIT);
+let cur=0,cmp=0,swp=0,sortedFrom=N,autoTimer=null,spdMs=700;
+
+function hl(ids){
+  document.querySelectorAll('.cl').forEach(c=>c.classList.remove('hl'));
+  (Array.isArray(ids)?ids:[ids]).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('hl');});
+}
+
+function renderArr(arr,comparing=[],swapping=[],sortedFrom=N){
+  const box=document.getElementById('arr-viz');
+  box.innerHTML='';
+  arr.forEach((v,i)=>{
+    const wrap=document.createElement('div');wrap.className='cell-wrap';
+    const cell=document.createElement('div');cell.className='cell';
+    if(i>=sortedFrom)cell.classList.add('sorted');
+    else if(swapping.includes(i))cell.classList.add('swapping');
+    else if(comparing.includes(i))cell.classList.add('comparing');
+    else cell.classList.add('default');
+    cell.textContent=v;
+    const idx=document.createElement('div');idx.className='idx';idx.textContent=`[${i}]`;
+    wrap.appendChild(cell);wrap.appendChild(idx);
+    box.appendChild(wrap);
+  });
+}
+
+function setDesc(html){document.getElementById('step-desc').innerHTML=html;}
+function setStat(i,j,c,s){
+  document.getElementById('s-pass').textContent=i===undefined?'-':i+1;
+  document.getElementById('s-j').textContent=j===undefined?'-':j;
+  document.getElementById('s-cmp').textContent=c;
+  document.getElementById('s-swp').textContent=s;
+}
+function setProg(pct){document.getElementById('prog').style.width=pct+'%';}
+
+function stepFwd(){
+  if(cur>=EVTS.length){
+    if(autoTimer){clearInterval(autoTimer);autoTimer=null;document.getElementById('play-icon').className='ti ti-player-play';}
+    document.getElementById('btn-step').disabled=true;
+    document.getElementById('btn-auto').disabled=true;
+    return;
+  }
+  const e=EVTS[cur++];
+  const pct=Math.round((cur/EVTS.length)*100);
+  setProg(pct);
+
+  if(e.type==='init'){
+    renderArr(e.arr,[],[],N);
+    hl(['L1','L2']);
+    setDesc(`<strong>초기 배열</strong> arr = [7, 2, 5, 1, 6]<br>n = len(arr) → <strong>n = 5</strong><br>바깥 반복문은 range(n-1) = range(4) → i = 0, 1, 2, 3 으로 총 4번 패스를 돌아요.`);
+    setStat(undefined,undefined,0,0);
+
+  }else if(e.type==='pass-start'){
+    renderArr(e.arr,[],[],sortedFrom);
+    hl('L3');
+    const range=N-e.i-1;
+    setDesc(`<span class="tag pass">${e.i+1}패스 시작</span>  i = ${e.i}<br><strong>for i in range(n-1):</strong>  →  i = ${e.i}<br>안쪽 반복문 범위: range(n - i - 1) = range(${N} - ${e.i} - 1) = range(<strong>${range}</strong>)<br>즉, j = 0 ~ ${range-1} 까지 비교해요.`);
+    setStat(e.i,undefined,cmp,swp);
+
+  }else if(e.type==='compare'){
+    renderArr(e.before,[e.j,e.j+1],[],sortedFrom);
+    hl('L5');
+    const a=e.before[e.j],b=e.before[e.j+1];
+    setDesc(`<span class="tag cmp">비교</span>  j = ${e.j}<br><strong>if arr[${e.j}] > arr[${e.j+1}]</strong>  →  if <strong>${a} > ${b}</strong>  →  <strong>${e.sw?'True → 교환해야 해요!':'False → 교환 없이 다음으로'}</strong>`);
+    cmp++;setStat(e.i,e.j,cmp,swp);
+
+  }else if(e.type==='swap'){
+    renderArr(e.arr,[],[e.j,e.j+1],sortedFrom);
+    hl('L6');
+    const prev=EVTS[cur-2].before;
+    setDesc(`<span class="tag swp">교환!</span>  arr[${e.j}], arr[${e.j+1}] = arr[${e.j+1}], arr[${e.j}]<br><strong>${prev[e.j]}</strong>와 <strong>${prev[e.j+1]}</strong>의 위치를 바꿨어요.<br>파이썬은 임시 변수 없이 한 줄로 두 값을 동시에 교환할 수 있어요.`);
+    swp++;setStat(e.i,e.j,cmp,swp);
+
+  }else if(e.type==='keep'){
+    renderArr(e.arr,[e.j,e.j+1],[],sortedFrom);
+    hl('L5');
+    const a=e.arr[e.j],b=e.arr[e.j+1];
+    setDesc(`<span class="tag keep">유지</span>  arr[${e.j}] = ${a},  arr[${e.j+1}] = ${b}<br>${a} &lt; ${b} 이므로 이미 순서가 맞아요. <strong>교환하지 않고</strong> 다음 j로 이동해요.`);
+    setStat(e.i,e.j,cmp,swp);
+
+  }else if(e.type==='pass-end'){
+    sortedFrom=e.confirmed;
+    renderArr(e.arr,[],[],sortedFrom);
+    hl('L3');
+    const biggest=e.arr[e.confirmed];
+    setDesc(`<span class="tag done">${e.i+1}패스 완료!</span><br>가장 큰 값 <strong>${biggest}</strong>이(가) 맨 뒤 [${e.confirmed}]번 자리로 이동했어요.<br>이제 <strong>[${e.confirmed}]번 이후</strong>는 정렬 확정(초록)이에요. 다음 패스에서는 비교하지 않아요.`);
+    setStat(e.i,undefined,cmp,swp);
+
+  }else if(e.type==='done'){
+    sortedFrom=0;
+    renderArr(e.arr,[],[],0);
+    hl('L7');
+    setDesc(`<span class="tag done">정렬 완료!</span><br><strong>print("정렬 결과:", arr)</strong><br>출력: <strong>정렬 결과: [1, 2, 5, 6, 7]</strong><br>총 비교 ${cmp}회, 교환 ${swp}회 만에 정렬이 완료됐어요!`);
+    setStat(undefined,undefined,cmp,swp);
+    document.getElementById('btn-step').disabled=true;
+    document.getElementById('btn-auto').disabled=true;
+    if(autoTimer){clearInterval(autoTimer);autoTimer=null;document.getElementById('play-icon').className='ti ti-player-play';}
+  }
+}
+
+function toggleAuto(){
+  if(autoTimer){
+    clearInterval(autoTimer);autoTimer=null;
+    document.getElementById('play-icon').className='ti ti-player-play';
+  }else{
+    document.getElementById('play-icon').className='ti ti-player-pause';
+    autoTimer=setInterval(()=>{
+      if(cur>=EVTS.length){clearInterval(autoTimer);autoTimer=null;document.getElementById('play-icon').className='ti ti-player-play';return;}
+      stepFwd();
+    },spdMs);
+  }
+}
+
+function setSpd(v){
+  const map={1:180,2:380,3:700,4:1100,5:1700};
+  spdMs=map[v]||700;
+  if(autoTimer){clearInterval(autoTimer);autoTimer=setInterval(()=>{if(cur>=EVTS.length){clearInterval(autoTimer);autoTimer=null;return;}stepFwd();},spdMs);}
+}
+
+function resetSim(){
+  if(autoTimer){clearInterval(autoTimer);autoTimer=null;document.getElementById('play-icon').className='ti ti-player-play';}
+  cur=0;cmp=0;swp=0;sortedFrom=N;
+  renderArr(INIT,[],[],N);
+  setDesc('▶ 시작 버튼을 눌러 버블 정렬 과정을 단계별로 확인해 보세요!');
+  setStat(undefined,undefined,0,0);
+  setProg(0);
+  document.getElementById('btn-step').disabled=false;
+  document.getElementById('btn-auto').disabled=false;
+  document.querySelectorAll('.cl').forEach(c=>c.classList.remove('hl'));
+}
+
+resetSim();
+</script>
