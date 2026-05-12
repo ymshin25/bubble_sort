@@ -1,0 +1,250 @@
+
+<style>
+h2.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.code-wrap{background:#1e1e2e;border-radius:var(--border-radius-lg);padding:1.1rem 1.4rem;font-family:var(--font-mono);font-size:13px;line-height:2;overflow-x:auto}
+.cl{display:flex;gap:10px;border-radius:4px;padding:0 5px;margin:0 -5px;transition:background .25s}
+.cl.active{background:rgba(250,204,21,0.13);border-left:2px solid #facc15;padding-left:3px}
+.ln{color:#4a4a6a;font-size:11px;min-width:20px;user-select:none;flex-shrink:0;padding-top:3px}
+.kw{color:#c792ea}.fn{color:#82aaff}.st{color:#c3e88d}.cm{color:#546e7a;font-style:italic}.num{color:#f78c6c}.var{color:#eeffff}.op{color:#89ddff}.punc{color:#89ddff}
+.out-wrap{border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);overflow:hidden;margin-top:1.25rem}
+.out-header{background:var(--color-background-secondary);padding:.55rem 1rem;font-size:12px;font-weight:500;color:var(--color-text-secondary);display:flex;align-items:center;gap:6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.out-body{padding:.85rem 1rem;min-height:80px;font-family:var(--font-mono);font-size:13px;line-height:1.85}
+.out-line{display:flex;align-items:baseline;gap:8px;padding:1px 0;border-bottom:0.5px solid transparent}
+.out-line.pass-title{border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:4px;padding-bottom:4px}
+.tag{display:inline-flex;align-items:center;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:500;flex-shrink:0;line-height:1.6}
+.tag.pass{background:#EAF3DE;color:#27500A}
+.tag.swap{background:#fee2e2;color:#991b1b}
+.tag.keep{background:#EEF4FF;color:#185FA5}
+.tag.done{background:#dcfce7;color:#166534}
+.arr-chip{display:inline-flex;gap:3px;align-items:center;flex-wrap:nowrap}
+.arr-chip span.bracket{color:var(--color-text-tertiary);font-size:12px}
+.num-cell{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;border-radius:4px;font-size:12px;font-weight:500;background:var(--color-background-secondary);color:var(--color-text-primary);transition:background .3s,color .3s}
+.num-cell.cmp{background:#fef3c7;color:#92400e}
+.num-cell.swapped{background:#fee2e2;color:#991b1b}
+.num-cell.sorted{background:#dcfce7;color:#166534}
+.ctrl-row{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;align-items:center}
+.speed-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary)}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:1rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.55rem .75rem;text-align:center}
+.stat-n{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.stat-l{font-size:11px;color:var(--color-text-secondary)}
+</style>
+
+<h2 class="sr-only">버블 정렬 단계별 출력 시각화 — 1패스부터 최종 결과까지 중간 과정을 한 줄씩 출력하며 확인합니다</h2>
+
+<div style="padding:1rem 0 0">
+
+<div class="code-wrap" id="codeblock">
+<div class="cl"><span class="ln">1</span><span><span class="cm"># 버블 정렬 — 1패스부터 중간 과정 출력</span></span></div>
+<div class="cl"><span class="ln">2</span><span><span class="var">arr</span> <span class="op">=</span> <span class="punc">[</span><span class="num">7</span><span class="punc">,</span> <span class="num">2</span><span class="punc">,</span> <span class="num">5</span><span class="punc">,</span> <span class="num">1</span><span class="punc">,</span> <span class="num">6</span><span class="punc">]</span></span></div>
+<div class="cl"><span class="ln">3</span><span><span class="var">n</span> <span class="op">=</span> <span class="fn">len</span><span class="punc">(</span><span class="var">arr</span><span class="punc">)</span></span></div>
+<div class="cl"><span class="ln">4</span><span></span></div>
+<div class="cl" id="L5"><span class="ln">5</span><span><span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span><span class="punc">(</span><span class="var">n</span> <span class="op">-</span> <span class="num">1</span><span class="punc">):</span></span></div>
+<div class="cl" id="L6"><span class="ln">6</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span><span class="punc">(</span><span class="st">f"</span><span class="op">\n</span><span class="st">▶ </span><span class="punc">{</span><span class="var">i</span><span class="op">+</span><span class="num">1</span><span class="punc">}</span><span class="st">패스 시작 | 현재 배열:"</span><span class="punc">,</span> <span class="var">arr</span><span class="punc">)</span></span></div>
+<div class="cl" id="L7"><span class="ln">7</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> <span class="var">j</span> <span class="kw">in</span> <span class="fn">range</span><span class="punc">(</span><span class="var">n</span> <span class="op">-</span> <span class="var">i</span> <span class="op">-</span> <span class="num">1</span><span class="punc">):</span></span></div>
+<div class="cl" id="L8"><span class="ln">8</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="punc">]</span> <span class="op">&gt;</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="op">+</span><span class="num">1</span><span class="punc">]:</span></span></div>
+<div class="cl" id="L9"><span class="ln">9</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="punc">],</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="op">+</span><span class="num">1</span><span class="punc">]</span> <span class="op">=</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="op">+</span><span class="num">1</span><span class="punc">],</span> <span class="var">arr</span><span class="punc">[</span><span class="var">j</span><span class="punc">]</span></span></div>
+<div class="cl" id="L10"><span class="ln">10</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span><span class="punc">(</span><span class="st">f"  arr[</span><span class="punc">{</span><span class="var">j</span><span class="punc">}</span><span class="st">]↔arr[</span><span class="punc">{</span><span class="var">j</span><span class="op">+</span><span class="num">1</span><span class="punc">}</span><span class="st">] 교환 → "</span><span class="punc">,</span> <span class="var">arr</span><span class="punc">)</span></span></div>
+<div class="cl" id="L11"><span class="ln">11</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span><span class="punc">:</span></span></div>
+<div class="cl" id="L12"><span class="ln">12</span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span><span class="punc">(</span><span class="st">f"  arr[</span><span class="punc">{</span><span class="var">j</span><span class="punc">}</span><span class="st">]↔arr[</span><span class="punc">{</span><span class="var">j</span><span class="op">+</span><span class="num">1</span><span class="punc">}</span><span class="st">] 유지   → "</span><span class="punc">,</span> <span class="var">arr</span><span class="punc">)</span></span></div>
+<div class="cl" id="L13"><span class="ln">13</span><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span><span class="punc">(</span><span class="st">f"  ✔ {i+1}패스 완료! 확정:"</span><span class="punc">,</span> <span class="var">arr</span><span class="punc">[</span><span class="var">n</span><span class="op">-</span><span class="var">i</span><span class="op">-</span><span class="num">1</span><span class="punc">:])</span></span></div>
+<div class="cl"><span class="ln">14</span><span></span></div>
+<div class="cl" id="L15"><span class="ln">15</span><span><span class="fn">print</span><span class="punc">(</span><span class="st">"\n정렬 결과:"</span><span class="punc">,</span> <span class="var">arr</span><span class="punc">)</span></span></div>
+</div>
+
+<div class="stat-row">
+  <div class="stat"><div class="stat-n" id="s-pass">-</div><div class="stat-l">현재 패스</div></div>
+  <div class="stat"><div class="stat-n" id="s-cmp">0</div><div class="stat-l">총 비교 횟수</div></div>
+  <div class="stat"><div class="stat-n" id="s-swap">0</div><div class="stat-l">총 교환 횟수</div></div>
+</div>
+
+<div class="ctrl-row">
+  <button id="btn-step" onclick="stepFwd()" style="font-size:13px">다음 출력 <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+  <button id="btn-auto" onclick="toggleAuto()" style="font-size:13px"><i class="ti ti-player-play" id="play-icon" aria-hidden="true"></i> 자동 실행</button>
+  <button onclick="resetSim()" style="font-size:13px"><i class="ti ti-refresh" aria-hidden="true"></i> 처음부터</button>
+  <div class="speed-row">
+    <span>빠르게</span>
+    <input type="range" min="1" max="5" value="3" id="spd" step="1" style="width:80px" oninput="setSpeed(this.value)">
+    <span>천천히</span>
+  </div>
+</div>
+
+<div class="out-wrap">
+  <div class="out-header">
+    <i class="ti ti-terminal-2" aria-hidden="true"></i>
+    <span>출력 결과 (print)</span>
+    <span id="out-badge" style="margin-left:auto;font-size:11px;color:var(--color-text-tertiary)">실행 전</span>
+  </div>
+  <div class="out-body" id="out-body" style="color:var(--color-text-tertiary);font-style:italic">
+    실행 버튼을 눌러보세요...
+  </div>
+</div>
+
+</div>
+
+<script>
+const INIT=[7,2,5,1,6];
+
+function calcEvents(initArr){
+  const arr=[...initArr];
+  const n=arr.length;
+  const evts=[];
+  for(let i=0;i<n-1;i++){
+    evts.push({type:'pass-start',pass:i+1,arr:[...arr]});
+    for(let j=0;j<n-i-1;j++){
+      const swapped=arr[j]>arr[j+1];
+      if(swapped)[arr[j],arr[j+1]]=[arr[j+1],arr[j]];
+      evts.push({type:swapped?'swap':'keep',pass:i+1,j,arr:[...arr],swapped,lineId:swapped?'L10':'L12'});
+    }
+    evts.push({type:'pass-end',pass:i+1,arr:[...arr],confirmed:arr.slice(n-i-1)});
+  }
+  evts.push({type:'final',arr:[...arr]});
+  return evts;
+}
+
+const EVENTS=calcEvents(INIT);
+let cursor=0,cmpCount=0,swapCount=0,autoTimer=null,speedMs=700;
+
+function arrChip(arr,highlightIdx,swappedIdx,sortedFrom){
+  const d=document.createElement('span');
+  d.className='arr-chip';
+  const lb=document.createElement('span');lb.className='bracket';lb.textContent='[';d.appendChild(lb);
+  arr.forEach((v,i)=>{
+    if(i>0){const c=document.createElement('span');c.className='bracket';c.textContent=',';d.appendChild(c);}
+    const cell=document.createElement('span');cell.className='num-cell';cell.textContent=v;
+    if(sortedFrom!==undefined&&i>=sortedFrom)cell.className='num-cell sorted';
+    if(highlightIdx!==undefined&&(i===highlightIdx||i===highlightIdx+1))cell.className='num-cell cmp';
+    if(swappedIdx!==undefined&&(i===swappedIdx||i===swappedIdx+1))cell.className='num-cell swapped';
+    d.appendChild(cell);
+  });
+  const rb=document.createElement('span');rb.className='bracket';rb.textContent=']';d.appendChild(rb);
+  return d;
+}
+
+function clearActive(){document.querySelectorAll('.cl.active').forEach(c=>c.classList.remove('active'));}
+
+function activateLine(id){clearActive();const el=document.getElementById(id);if(el)el.classList.add('active');}
+
+function addOutLine(html,cls=''){
+  const ob=document.getElementById('out-body');
+  if(ob.querySelector('i')){ob.innerHTML='';}
+  const row=document.createElement('div');
+  row.className='out-line'+(cls?' '+cls:'');
+  row.innerHTML=html;
+  ob.appendChild(row);
+  ob.scrollTop=ob.scrollHeight;
+}
+
+function addOutLineWithChip(prefix,tag,arr,j,swapped,sortedFrom){
+  const ob=document.getElementById('out-body');
+  if(ob.querySelector('i')){ob.innerHTML='';}
+  const row=document.createElement('div');
+  row.className='out-line';
+
+  const pre=document.createElement('span');pre.style.color='var(--color-text-secondary)';pre.textContent=prefix;
+  const tg=document.createElement('span');tg.className='tag '+(swapped?'swap':'keep');tg.textContent=tag;
+  const arrow=document.createElement('span');arrow.style.color='var(--color-text-tertiary)';arrow.textContent=' →';
+
+  row.appendChild(pre);row.appendChild(tg);row.appendChild(arrow);
+  row.appendChild(arrChip(arr,undefined,swapped?j:undefined,sortedFrom));
+  ob.appendChild(row);
+  ob.scrollTop=ob.scrollHeight;
+}
+
+function stepFwd(){
+  if(cursor>=EVENTS.length){
+    document.getElementById('btn-step').disabled=true;
+    document.getElementById('btn-auto').disabled=true;
+    if(autoTimer){clearInterval(autoTimer);autoTimer=null;document.getElementById('play-icon').className='ti ti-player-play';}
+    return;
+  }
+  const e=EVENTS[cursor++];
+  const n=INIT.length;
+
+  if(e.type==='pass-start'){
+    activateLine('L6');
+    const row=document.createElement('div');
+    row.className='out-line pass-title';
+    const tag=document.createElement('span');tag.className='tag pass';tag.textContent=`${e.pass}패스`;
+    const txt=document.createElement('span');txt.style.color='var(--color-text-secondary)';txt.textContent=' 시작 | 현재 배열  ';
+    row.appendChild(tag);row.appendChild(txt);row.appendChild(arrChip(e.arr));
+    const ob=document.getElementById('out-body');
+    if(ob.querySelector('i')){ob.innerHTML='';}
+    ob.appendChild(row);ob.scrollTop=ob.scrollHeight;
+    document.getElementById('s-pass').textContent=e.pass;
+
+  } else if(e.type==='swap'||e.type==='keep'){
+    activateLine(e.lineId);
+    if(e.type==='swap'){cmpCount++;swapCount++;}else{cmpCount++;}
+    document.getElementById('s-cmp').textContent=cmpCount;
+    document.getElementById('s-swap').textContent=swapCount;
+    const sortedFrom=n-(e.pass-1)-1;
+    addOutLineWithChip(
+      `  arr[${e.j}]↔arr[${e.j+1}]  `,
+      e.swapped?'교환':'유지',
+      e.arr,e.j,e.swapped,
+      e.arr.length
+    );
+
+  } else if(e.type==='pass-end'){
+    activateLine('L13');
+    const ob=document.getElementById('out-body');
+    const row=document.createElement('div');
+    row.className='out-line';
+    const txt=document.createElement('span');txt.style.color='var(--color-text-secondary)';txt.textContent=`  ✔ ${e.pass}패스 완료! 확정:  `;
+    const tg=document.createElement('span');tg.className='tag done';tg.textContent=`[${e.confirmed.join(', ')}]`;
+    row.appendChild(txt);row.appendChild(tg);
+    ob.appendChild(row);
+
+    const spacer=document.createElement('div');spacer.style.height='6px';ob.appendChild(spacer);
+    ob.scrollTop=ob.scrollHeight;
+
+  } else if(e.type==='final'){
+    activateLine('L15');
+    const ob=document.getElementById('out-body');
+    const row=document.createElement('div');
+    row.className='out-line';row.style.marginTop='4px';
+    const label=document.createElement('span');label.style.color='var(--color-text-secondary)';label.textContent='정렬 결과:  ';
+    row.appendChild(label);
+    row.appendChild(arrChip(e.arr,undefined,undefined,0));
+    ob.appendChild(row);ob.scrollTop=ob.scrollHeight;
+    document.getElementById('out-badge').textContent='완료';
+    document.getElementById('out-badge').style.color='var(--color-text-success)';
+    document.getElementById('s-pass').textContent='완료';
+    clearActive();document.getElementById('L15').classList.add('active');
+  }
+}
+
+function toggleAuto(){
+  if(autoTimer){
+    clearInterval(autoTimer);autoTimer=null;
+    document.getElementById('play-icon').className='ti ti-player-play';
+  } else {
+    document.getElementById('play-icon').className='ti ti-player-pause';
+    autoTimer=setInterval(()=>{
+      if(cursor>=EVENTS.length){clearInterval(autoTimer);autoTimer=null;document.getElementById('play-icon').className='ti ti-player-play';return;}
+      stepFwd();
+    },speedMs);
+  }
+}
+
+function setSpeed(v){
+  const map={1:200,2:400,3:700,4:1100,5:1700};
+  speedMs=map[v]||700;
+  if(autoTimer){clearInterval(autoTimer);autoTimer=setInterval(()=>{if(cursor>=EVENTS.length){clearInterval(autoTimer);autoTimer=null;return;}stepFwd();},speedMs);}
+}
+
+function resetSim(){
+  if(autoTimer){clearInterval(autoTimer);autoTimer=null;document.getElementById('play-icon').className='ti ti-player-play';}
+  cursor=0;cmpCount=0;swapCount=0;
+  document.getElementById('s-pass').textContent='-';
+  document.getElementById('s-cmp').textContent=0;
+  document.getElementById('s-swap').textContent=0;
+  document.getElementById('out-body').innerHTML='<span style="color:var(--color-text-tertiary);font-style:italic">실행 버튼을 눌러보세요...</span>';
+  document.getElementById('out-badge').textContent='실행 전';
+  document.getElementById('out-badge').style.color='var(--color-text-tertiary)';
+  document.getElementById('btn-step').disabled=false;
+  document.getElementById('btn-auto').disabled=false;
+  clearActive();
+}
+</script>
